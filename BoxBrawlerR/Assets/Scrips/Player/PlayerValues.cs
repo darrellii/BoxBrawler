@@ -10,15 +10,26 @@ public class PlayerValues  {
 	private inputState attack = inputState.None;
 	private int lives = 5;
 
-	public static float scale = 3f;
-	public readonly float runVel  = scale * 3f; 	
-	public readonly float walkVel = scale *2f; 	
-	public readonly float jumpVel = scale *2.5f; 	
-	public readonly float fallVel = scale *2f;
-	public readonly int maxJumps = 2; 
+	public float scale;
+	public float runVel;  	
+	public float walkVel; 	
+	public float jumpVel; 	
+	public float fallVel;
+	public int maxJumps;
 
 	public int jumps = 0;		
 	public bool grounded = false;
+
+	public PlayerValues()
+	{
+		scale = 3f;
+		runVel  = scale * 3f;
+		walkVel = scale *2f;
+		jumpVel = scale *2.5f;
+		fallVel = scale *2f;
+		maxJumps = 2;
+		
+	}
 
 	public enum facing{
 		Left,
@@ -89,6 +100,24 @@ public class PlayerValues  {
 	}
 	public void setAttack(inputState toSet){
 		 attack = toSet;
+	}
+
+
+
+	/*Player Spicific Values*/
+
+	public class ThornValues : PlayerValues
+	{
+		public ThornValues()
+		{
+			scale = 3f;
+			runVel  = scale * 3f;
+			walkVel = scale *2f;
+			jumpVel = scale *2.5f;
+			fallVel = scale *2f;
+			maxJumps = 2;
+			
+		}
 	}
 
 }

@@ -7,8 +7,9 @@ public class PlayerControler : MonoBehaviour {
 
 
 	private PlayerAnimationHandler animationHandler;
-	private InplutHandlerKeyboard inputHandler;
-	private ScreanInput screeninput;
+
+	private InputHandler inputHandler;
+
 	private PlayerValues values;
 
 
@@ -37,14 +38,15 @@ public class PlayerControler : MonoBehaviour {
 	void Start () {
 		groundCheck = transform.Find("GroundCheck");
 		animationHandler = new PlayerAnimationHandler (GetComponent<Animator>(), values);
-//		inputHandler = new InplutHandlerKeyboard (values);
-		screeninput = new ScreanInput (values);//ScreanInput (values,toutchInfo);
+		inputHandler = new InplutHandlerKeyboard (values);
+//		inputHandler = new ScreanInput (values);
 
 	}
 
 	// Update is called once per frame
 	void Update () {
-		screeninput.updateInput ();
+		inputHandler.updateInput ();
+
 		//inputHandler.updateInput ();
 
 		move ();

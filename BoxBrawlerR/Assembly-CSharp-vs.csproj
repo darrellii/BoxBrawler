@@ -47,13 +47,14 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scrips\GameState\GameState.cs" />
+     <Compile Include="Assets\Scrips\InputHandler\InplutHandlerKeyboard.cs" />
+     <Compile Include="Assets\Scrips\InputHandler\InputHandler.cs" />
+     <Compile Include="Assets\Scrips\InputHandler\ScreanInput.cs" />
      <Compile Include="Assets\Scrips\Network\NetworkManager.cs" />
-     <Compile Include="Assets\Scrips\Player\InplutHandlerKeyboard.cs" />
      <Compile Include="Assets\Scrips\Player\KillZonehandler.cs" />
      <Compile Include="Assets\Scrips\Player\PlayerAnimationHandler.cs" />
      <Compile Include="Assets\Scrips\Player\PlayerControler.cs" />
      <Compile Include="Assets\Scrips\Player\PlayerValues.cs" />
-     <Compile Include="Assets\Scrips\tutch\ScreanInput.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

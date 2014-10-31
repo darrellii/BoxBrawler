@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class InplutHandlerKeyboard {
+public class InplutHandlerKeyboard :InputHandler {
 
 	public PlayerValues playerVal;
 	private float timerR = -1;
@@ -13,11 +13,11 @@ public class InplutHandlerKeyboard {
 		playerVal = val;
 	}
 	
-	public void updateInput()
+	public override void updateInput()
 	{
 		
 		// move left
-		if (Input.GetKey (KeyCode.LeftArrow)) 
+		if (Input.GetKey (KeyCode.LeftArrow)|| Input.GetKey (KeyCode.A)) 
 		{ 
 			playerVal.setDirectionalX(PlayerValues.inputState.WalkLeft);
 			playerVal.setFacing(PlayerValues.facing.Left);
@@ -28,7 +28,7 @@ public class InplutHandlerKeyboard {
 				//run
 				playerVal.setDirectionalX(PlayerValues.inputState.RunLeft);
 			}
-		} else if (Input.GetKey (KeyCode.RightArrow)) {
+		} else if (Input.GetKey (KeyCode.RightArrow)|| Input.GetKey (KeyCode.D)) {
 			playerVal.setDirectionalX(PlayerValues.inputState.WalkRight);
 			playerVal.setFacing(PlayerValues.facing.Right);
 			timerL = -1;
@@ -46,9 +46,9 @@ public class InplutHandlerKeyboard {
 		}
 		
 		//float or fall now is the time 
-		if (Input.GetKey (KeyCode.DownArrow)) {
+		if (Input.GetKey (KeyCode.DownArrow) || Input.GetKeyDown (KeyCode.S)) {
 			playerVal.setDirectionalY(PlayerValues.inputState.Fall);
-		} else if (Input.GetKey (KeyCode.UpArrow)) {
+		} else if (Input.GetKey (KeyCode.UpArrow) || Input.GetKeyDown (KeyCode.W)) {
 			playerVal.setDirectionalY(PlayerValues.inputState.Float);
 		} else {
 			playerVal.setDirectionalY(PlayerValues.inputState.None);

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ScreanInput {
+public class ScreanInput : InputHandler {
 
 	public GUIText gui;
 	//swipe testing valse
@@ -31,7 +31,7 @@ public class ScreanInput {
 
 	private int middle;
 
-	public void updateInput()
+	public override void updateInput()
 	{
 		attack = PlayerValues.inputState.None;
 		middle =  Screen.currentResolution.width/2;
