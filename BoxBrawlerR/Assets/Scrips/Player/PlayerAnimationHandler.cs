@@ -28,10 +28,20 @@ public class PlayerAnimationHandler {
 
 	public void returnToIdle()
 	{
-		current_state = 0;
+		if (current_state == 15 || current_state == 17)
+			current_state++;
+		else
+			current_state = 0;
 		anim.SetInteger ("current_state", current_state);
 	}
-
+	public void catchRight(){
+		current_state = 17;
+		anim.SetInteger ("current_state", current_state);
+	}
+	public void catchLeft(){
+		current_state = 15;
+		anim.SetInteger ("current_state", current_state);
+	}
 
 	public void updateAnimation()
 	{

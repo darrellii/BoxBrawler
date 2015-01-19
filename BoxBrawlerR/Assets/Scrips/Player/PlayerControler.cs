@@ -4,7 +4,11 @@ using System.Collections.Generic;
 public class PlayerControler : MonoBehaviour {
 
 
-
+	//gravity stuff
+	float g = 9.81f;
+	float startT = 0f;
+	float endT = 0f;
+	float deltT = 0f;
 
 	private PlayerAnimationHandler animationHandler;
 
@@ -23,47 +27,62 @@ public class PlayerControler : MonoBehaviour {
 	private Transform groundCheck;
 
 
-
-
 	public virtual void Awake()
 	{
 		_transform = transform;
 		_rigidbody = rigidbody2D;
 		values = new PlayerValues ();
+		animationHandler = new PlayerAnimationHandler (GetComponent<Animator>(), values);
+//		inputHandler = new InplutHandlerKeyboard (values);
 
+		inputHandler = new ScreanInput (values);
 	}
 
 
 	// Use this for initialization
 	void Start () {
 		groundCheck = transform.Find("GroundCheck");
-		animationHandler = new PlayerAnimationHandler (GetComponent<Animator>(), values);
-		inputHandler = new InplutHandlerKeyboard (values);
-//		inputHandler = new ScreanInput (values);
+		Physics2D.IgnoreLayerCollision (9, 9);
+		startT = Time.time;
 
 	}
 
 	// Update is called once per frame
-	void Update () {
-		inputHandler.updateInput ();
+	void FixedUpdate () {
 
-		//inputHandler.updateInput ();
 
-		move ();
-		animationHandler.updateAnimation ();
+
+		if (networkView.isMine) 
+		{
+			inputHandler.updateInput ();
+			move ();
+			animationHandler.updateAnimation ();
+		}
+		else
+		{
+			//let update on own
+		}
 
 	}
+
+
+
+
+	//when this is done it should all work better on network
 
 	private void move(){
 
 		physVel.x = getMoveVel (values.getDirectionalX());
 		float increasedFall = getIncreasedFallVell(values.getDirectionalY());
 		values.grounded = checkGrounded();
+		Vector2 gravityVel = Vector2.zero;
+		float vy = _rigidbody.velocity.y;
+
 
 		if (values.grounded) {
 			values.jumps = 0;
 		}else{
-			_rigidbody.AddForce(-Vector3.up * (values.fallVel));
+//			_rigidbody.AddForce(-Vector3.up * (values.fallVel));
 		}
 		// jumpS
 		if(values.getJumps() == PlayerValues.inputState.Jump)
@@ -71,13 +90,29 @@ public class PlayerControler : MonoBehaviour {
 			if(values.jumps < values.maxJumps)
 			{
 				values.jumps += 1;
-				_rigidbody.velocity = new Vector2(physVel.x, values.jumpVel);
+				vy = values.jumpVel;
+//				_rigidbody.velocity = new Vector2(physVel.x, values.jumpVel);
 				
 			}
 		}
+		//calculate gravity yo
 
+		endT = Time.time;
+		deltT = endT - startT;
+		startT = Time.time;
+
+		//change to x and y seperate calcs dawg
+//		vy = _rigidbody.velocity.y;
+		if(!values.grounded){//still need to check something above
+			vy = vy*increasedFall -g*deltT;
+//			_rigidbody.velocity = new Vector2(physVel.x, _rigidbody.velocity.y*increasedFall + gravityVel.y);
+		}else if ( vy < 0){
+			vy = 0;
+//			gravityVel = Vector2.zero;
+//			_rigidbody.velocity = new Vector2(physVel.x, gravityVel.y);
+		}
 		// actually move the player
-		_rigidbody.velocity = new Vector2(physVel.x, _rigidbody.velocity.y*increasedFall);
+		_rigidbody.velocity = new Vector2(physVel.x, vy);
 
 
 	}
@@ -143,12 +178,41 @@ public class PlayerControler : MonoBehaviour {
 			||Physics2D.Linecast (_transform.position, new Vector2(groundCheck.position.x-.16f,groundCheck.position.y), 1 << LayerMask.NameToLayer("ground"))
 				||Physics2D.Linecast (_transform.position, new Vector2(groundCheck.position.x+.16f,groundCheck.position.y), 1 << LayerMask.NameToLayer("ground"))	;
 	}
+	//TODO
+	private bool checkAbove()
+	{
+		return Physics2D.Linecast (_transform.position, groundCheck.position, 1 << LayerMask.NameToLayer("ground"))
+			||Physics2D.Linecast (_transform.position, new Vector2(groundCheck.position.x-.16f,groundCheck.position.y), 1 << LayerMask.NameToLayer("ground"))
+				||Physics2D.Linecast (_transform.position, new Vector2(groundCheck.position.x+.16f,groundCheck.position.y), 1 << LayerMask.NameToLayer("ground"))	;
+	}
+	//TODO
+	private bool checkLeft()
+	{
+		return Physics2D.Linecast (_transform.position, groundCheck.position, 1 << LayerMask.NameToLayer("ground"))
+			||Physics2D.Linecast (_transform.position, new Vector2(groundCheck.position.x-.16f,groundCheck.position.y), 1 << LayerMask.NameToLayer("ground"))
+				||Physics2D.Linecast (_transform.position, new Vector2(groundCheck.position.x+.16f,groundCheck.position.y), 1 << LayerMask.NameToLayer("ground"))	;
+	}
+	//TODO
+	private bool checkRight()
+	{
+		return Physics2D.Linecast (_transform.position, groundCheck.position, 1 << LayerMask.NameToLayer("ground"))
+			||Physics2D.Linecast (_transform.position, new Vector2(groundCheck.position.x-.16f,groundCheck.position.y), 1 << LayerMask.NameToLayer("ground"))
+				||Physics2D.Linecast (_transform.position, new Vector2(groundCheck.position.x+.16f,groundCheck.position.y), 1 << LayerMask.NameToLayer("ground"))	;
+	}
+
 
 	public void endAttack()
 	{
 		animationHandler.returnToIdle ();
 	}
+	public void catchRight(){
+		animationHandler.catchRight ();
 
+	}
+	public void catchLeft(){
+		animationHandler.catchLeft ();
+		
+	}
 	void Respond ()
 	{
 		this.transform.position = new Vector2 (0f, 3f);
@@ -166,7 +230,24 @@ public class PlayerControler : MonoBehaviour {
 //			//checkIfEndGame
 //		}
 	}
+
+
+
+	void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info) {
+		Vector3 syncPos = rigidbody2D.position;
+		Vector3 velocity = rigidbody2D.velocity;
+		
+		stream.Serialize(ref syncPos);
+		stream.Serialize(ref velocity);
+		
+		if (stream.isReading)
+		{
+			rigidbody2D.position = syncPos;
+			rigidbody2D.velocity = velocity;
+		}
+
+
+	}
+
 	
-
-
 }
